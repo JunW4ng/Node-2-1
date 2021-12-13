@@ -1,4 +1,3 @@
-//**************** 'npm run dev' in the terminal ****************
 const http = require('http')
 const axios = require('axios')
 const { v4: uuidv4 } = require('uuid')
@@ -8,7 +7,7 @@ const chalk = require('chalk')
 
 let allAppointments = []
 
-http.createServer(() => {
+http.createServer((req, res) => {
 
     axios.get('https://randomuser.me/api/')
         .then(({ data }) => {
@@ -20,14 +19,24 @@ http.createServer(() => {
             const id = uuidv4().slice(0, 6); //Unique Id with uuid
             const date = moment().format('MMMM Do YYYY, h:mm:ss a'); //Timestamp
 
+            const url = req.url
+
             allAppointments.push(`Nombre: ${name} - Apellido: ${lastName} - ID: ${id} - Timestamp: ${date}`);
 
             const color = chalk.blue.bgWhite; //Blue color and white background
 
-            _.forEach(allAppointments, (value, key)=>{
-                console.log(color(`${key}. ${value}`));
+            _.forEach(allAppointments, (value, key) => {
+
+                const patient = `${key}. ${value}`
+                console.log(color(patient))
+
+                if (url === '/list') {
+                    res.write(`<p>${patient}</p>`)
+                }
             });
-            
+
+            res.end()
+
         })
         .catch((error) => {
             console.log(error);
